@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Ads Agency - Transformăm Marketingul Digital în Agentul Tău de Vânzări</title>
+    <!-- Încarcă Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Încarcă Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Setează fontul și culorile personalizate -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        :root {
+            --color-primary: #059669; /* emerald-600 */
+            --color-accent: #10B981; /* emerald-500 */
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #000000;
+            color: #ffffff;
+            scroll-behavior: smooth;
+        }
+        /* Stil pentru butoane verzi */
+        .btn-primary {
+            background-color: var(--color-accent);
+            color: #000000;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            transition: background-color 0.3s, transform 0.2s;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+        }
+        .btn-primary:hover {
+            background-color: #059669; /* emerald-600 */
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
+        }
+        /* Stil pentru carduri și elemente de conținut */
+        .card {
+            background-color: #1a1a1a;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid #333;
+        }
+        /* Stil pentru textul de accent */
+        .text-accent {
+            color: var(--color-accent);
+        }
+        /* Parallax Style for Hero Section */
+        #acasa {
+            background-image: url('https://placehold.co/1920x1080/000000/1a1a1a?text=Background+Geometric');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed; /* Cheia pentru Parallax */
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Umbră mai profundă pentru hover pe carduri de servicii */
+        .service-card {
+            transition: all 0.3s ease-in-out;
+        }
+        .service-card:hover {
+            box-shadow: 0 20px 40px rgba(16, 185, 129, 0.2);
+            transform: translateY(-5px);
+            border-color: var(--color-accent);
+        }
+
+        /* Stil pentru cardul de testimonial */
+        .testimonial-card {
+            background-color: #1a1a1a;
+            border-radius: 1rem;
+            padding: 2rem;
+            border-left: 5px solid var(--color-accent);
+            position: relative;
+        }
+        .testimonial-card i[data-lucide="quote"] {
+            color: #059669;
+            opacity: 0.1;
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 80px;
+            height: 80px;
+        }
+        /* Stil pentru butonul plutitor */
+        #sticky-cta {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Configurare Firebase (NECESARĂ PENTRU PERSISTENȚĂ) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, doc, onSnapshot, setDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Variabile globale Firebase furnizate de mediu
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { projectId: 'mock-project' };
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let app, db, auth, userId = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                // Inițializare Firebase
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                // Setează nivelul de logare Firestore pentru depanare
+                setLogLevel('Debug');
+                console.log("Firebase initialized.");
+
+                // Logica de Autentificare
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        console.log("User authenticated:", userId);
+                        // Actualizează UI cu userId (obligatoriu pentru aplicațiile multi-utilizator)
+                        document.getElementById('user-id-display').textContent = `ID Utilizator: ${userId}`;
+                        document.getElementById('user-id-display').classList.remove('hidden');
+
+                    } else {
+                        // Autentificare folosind token personalizat sau anonim
+                        if (initialAuthToken) {
+                            await signInWithCustomToken(auth, initialAuthToken);
+                        } else {
+                            await signInAnonymously(auth);
+                            // Setăm userId chiar dacă este anonim, folosind uid-ul primit
+                            if(auth.currentUser) {
+                                userId = auth.currentUser.uid;
+                            } else {
+                                // Fallback for userId if auth.currentUser is not set immediately
+                                userId = 'anonymous-' + Math.random().toString(36).substr(2, 9);
+                            }
+                        }
+                        console.log("Auth process completed.");
+                    }
+                });
+
+            } catch (error) {
+                console.error("Failed to initialize Firebase:", error);
+                document.getElementById('status-message').textContent = "Eroare la inițializarea bazei de date. Vă rugăm verificați consola.";
+            }
+        });
+
+        // Funcția de trimitere a formularului de contact (Lead)
+        window.submitLead = async (event) => {
+            event.preventDefault();
+            const form = event.target;
+            const submitButton = form.querySelector('button[type="submit"]');
+            const statusMessage = document.getElementById('status-message');
+            
+            // 1. Pregătire și feedback vizual
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Se trimite mesajul...';
+            statusMessage.textContent = 'Se trimite mesajul...';
+            statusMessage.classList.remove('text-red-500', 'text-accent');
+            statusMessage.classList.add('text-gray-400');
+
+
+            const leadData = {
+                name: form.name.value,
+                email: form.email.value,
+                message: form.message.value,
+                phone: form.phone ? form.phone.value : null,
+                timestamp: new Date().toISOString(),
+                ownerId: userId || 'anonymous',
+            };
+
+            try {
+                if (!db) throw new Error("Firestore not initialized.");
+                if (!userId) {
+                     await new Promise(resolve => setTimeout(resolve, 1000));
+                    if (!auth.currentUser) await signInAnonymously(auth);
+                    userId = auth.currentUser.uid;
+                }
+
+                // Stocare în colecția publică: /artifacts/{appId}/public/data/leads
+                const leadsCollectionRef = collection(db, `artifacts/${appId}/public/data/leads`);
+                await addDoc(leadsCollectionRef, leadData);
+
+                statusMessage.textContent = 'Mesajul tău a fost trimis cu succes! Te contactăm în cel mai scurt timp.';
+                statusMessage.classList.remove('text-gray-400');
+                statusMessage.classList.add('text-accent');
+                form.reset();
+
+            } catch (error) {
+                console.error("Eroare la trimiterea lead-ului:", error);
+                statusMessage.textContent = `Eroare la trimiterea mesajului: ${error.message}`;
+                statusMessage.classList.remove('text-gray-400', 'text-accent');
+                statusMessage.classList.add('text-red-500');
+            } finally {
+                // 2. Resetarea butonului
+                submitButton.disabled = false;
+                submitButton.innerHTML = '<i data-lucide="send" class="w-5 h-5 mr-2"></i> >> Trimite acum <<';
+                lucide.createIcons();
+            }
+        };
+
+        // Initialize icons after DOM load
+        window.onload = () => {
+             // Inlocuieste automat iconitele Lucide
+            lucide.createIcons();
+
+            // Setează funcția Parallax
+            window.addEventListener('scroll', handleParallax);
+        };
+        
+        // Funcție Parallax
+        function handleParallax() {
+            const hero = document.getElementById('acasa');
+            // Verifică dacă elementul există
+            if (!hero) return; 
+            const scrollPosition = window.pageYOffset;
+            const speed = 0.3; // Viteză de mișcare 
+
+            // Aplică transformarea Y la background-position
+            hero.style.backgroundPositionY = `${scrollPosition * speed}px`;
+        }
+        
+        // Funcția pentru Meniul Mobil (reîmprospătată pentru a folosi lucide.createIcons)
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+            const iconElement = this.querySelector('i');
+            
+            // Schimbă iconița hamburger/close
+            if (menu.classList.contains('hidden')) {
+                iconElement.setAttribute('data-lucide', 'menu');
+            } else {
+                iconElement.setAttribute('data-lucide', 'x');
+            }
+            lucide.createIcons();
+        });
+        
+        // Închide meniul mobil când se dă click pe un link
+        document.querySelectorAll('#mobile-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                const menu = document.getElementById('mobile-menu');
+                menu.classList.add('hidden');
+                document.getElementById('mobile-menu-button').querySelector('i').setAttribute('data-lucide', 'menu');
+                lucide.createIcons();
+            });
+        });
+        
+        // Funcția pentru Acordeon FAQ (mutată aici din body script block)
+        window.toggleAccordion = function(button) {
+            const content = button.nextElementSibling;
+            const icon = button.querySelector('i');
+
+            // Găsește secțiunea FAQ și toate acordeoanele
+            const faqSection = button.closest('#faq');
+            
+            // Închide toate celelalte acordeoane
+            faqSection.querySelectorAll('.accordion-content').forEach(c => c !== content && c.classList.add('hidden'));
+            faqSection.querySelectorAll('#faq button i').forEach(i => i !== icon && (i.style.transform = 'rotate(0deg)'));
+
+
+            if (content.classList.contains('hidden')) {
+                // Deschide pe cel curent
+                content.classList.remove('hidden');
+                icon.style.transform = 'rotate(180deg)';
+            } else {
+                content.classList.add('hidden');
+                icon.style.transform = 'rotate(0deg)';
+            }
+        }
+
+    </script>
+
+
+    <!-- Meniu Navigare Fix -->
+    <nav class="sticky top-0 z-50 bg-black/90 backdrop-blur-sm border-b border-gray-800 shadow-xl">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <div class="flex-shrink-0">
+                    <span class="text-2xl font-extrabold text-white">Your Ads <span class="text-accent">Agency</span></span>
+                </div>
+                <!-- Meniu Desktop -->
+                <div class="hidden md:flex space-x-8 font-medium">
+                    <a href="#acasa" class="text-white hover:text-accent transition duration-200">Acasă</a>
+                    <a href="#despre-noi" class="text-white hover:text-accent transition duration-200">Despre Noi</a>
+                    <a href="#servicii" class="text-white hover:text-accent transition duration-200">Servicii</a>
+                    <a href="#testimoniale" class="text-white hover:text-accent transition duration-200">Succes</a>
+                    <a href="#blog" class="text-white hover:text-accent transition duration-200">Blog</a>
+                    <a href="#contact-form" class="btn-primary flex items-center">
+                        <i data-lucide="mail" class="w-4 h-4 mr-2"></i>
+                        Contact
+                    </a>
+                </div>
+                <!-- Meniu Mobil Button (Hamburger) -->
+                <button id="mobile-menu-button" class="md:hidden text-white focus:outline-none">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+            </div>
+        </div>
+        <!-- Meniu Mobil Dropdown -->
+        <div id="mobile-menu" class="hidden md:hidden bg-gray-900 border-t border-gray-800">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 flex flex-col">
+                <a href="#acasa" class="text-white hover:bg-gray-800 px-3 py-2 rounded-md transition duration-200">Acasă</a>
+                <a href="#despre-noi" class="text-white hover:bg-gray-800 px-3 py-2 rounded-md transition duration-200">Despre Noi</a>
+                <a href="#servicii" class="text-white hover:bg-gray-800 px-3 py-2 rounded-md transition duration-200">Servicii</a>
+                <a href="#testimoniale" class="text-white hover:bg-gray-800 px-3 py-2 rounded-md transition duration-200">Succes</a>
+                <a href="#blog" class="text-white hover:bg-gray-800 px-3 py-2 rounded-md transition duration-200">Blog</a>
+                <a href="#contact-form" class="text-white hover:bg-gray-800 px-3 py-2 rounded-md transition duration-200">Contact</a>
+            </div>
+        </div>
+    </nav>
+    <div id="user-id-display" class="hidden text-xs text-center p-1 bg-gray-800 text-gray-400"></div>
+
+    <main>
+        <!-- 1. Pagina Principală (Acasă) - HERO SECTION cu Parallax și Overlay -->
+        <section id="acasa" class="min-h-screen flex items-center justify-center text-center py-20 relative">
+             <div class="absolute inset-0 bg-black/70"></div> <!-- Overlay pentru contrast -->
+            <div class="max-w-7xl mx-auto px-6 relative z-10">
+                <span class="text-accent text-lg font-semibold uppercase tracking-widest block mb-4">Your Ads Agency.uk</span>
+                <h1 class="text-5xl md:text-7xl font-extrabold leading-tight mb-6 animate-pulse">
+                    Transformăm Marketingul Digital în Agentul Tău de Vânzări care lucrează 24/7
+                </h1>
+                <p class="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto mb-10">
+                    O echipă completă de specialiști pregătită să îți aducă clienți noi, trafic, conversii și vânzări.
+                </p>
+                <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">
+                    <a href="#contact-form" class="btn-primary text-lg flex items-center justify-center w-fit mx-auto sm:mx-0">
+                        <i data-lucide="zap" class="w-5 h-5 mr-2"></i>
+                        Vreau O Strategie
+                    </a>
+                    <a href="#servicii" class="bg-gray-700 text-white hover:bg-gray-600 transition duration-200 font-semibold py-3 px-6 rounded-lg flex items-center justify-center w-fit mx-auto sm:mx-0">
+                        Vezi Servicii
+                    </a>
+                </div>
+            </div>
+        </section>
+
+         <!-- Separator Modern -->
+        <div class="w-full bg-black">
+            <svg viewBox="0 0 100 20" preserveAspectRatio="none" class="w-full h-10" fill="#1a1a1a">
+                <polygon points="0,0 100,20 0,20" />
+            </svg>
+        </div>
+
+
+        <!-- 2. Despre Noi -->
+        <section id="despre-noi" class="py-20 md:py-32 bg-[#1a1a1a]">
+            <div class="max-w-7xl mx-auto px-6 lg:px-8">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                    <!-- Text Section -->
+                    <div>
+                        <h2 class="text-4xl md:text-5xl font-extrabold mb-6">
+                            Despre Noi și <span class="text-accent">Echipa Ta de Marketing</span>
+                        </h2>
+                        <p class="text-gray-300 text-lg mb-8">
+                            Suntem Your Ads Agency.uk, agenția de marketing digital care înțelege cu adevărat provocările afacerii tale. Ne-am propus să oferim antreprenorilor un departament complet de marketing extern, gata să livreze rezultate. Echipa noastră este formată din specialiști cu experiență în toate platformele esențiale.
+                        </p>
+                        <p class="text-gray-300 text-lg mb-8 border-l-4 border-accent pl-4 italic">
+                            Scopul nostru este să preluăm toată munca de marketing, de la strategie la implementare, pentru ca tu să te poți concentra pe creșterea afacerii.
+                        </p>
+
+                        <div class="space-y-6 mt-10">
+                            <!-- De Ce Noi - Garanții & Încredere -->
+                            <div class="flex items-start card p-6 bg-gray-900 border-l-4 border-accent">
+                                <i data-lucide="shield-check" class="w-8 h-8 text-accent mr-4 mt-1 flex-shrink-0"></i>
+                                <div>
+                                    <h3 class="text-xl font-bold mb-2">Garanții & Încredere</h3>
+                                    <p class="text-gray-400">Garantăm implementarea completă a serviciilor. Dacă în 14 zile nu primești niciun raport sau semn clar de activitate, îți returnăm banii (vezi detalii în secțiunea Garanții).</p>
+                                </div>
+                            </div>
+                            <!-- De Ce Noi - Transparență Totală -->
+                            <div class="flex items-start card p-6 bg-gray-900 border-l-4 border-accent">
+                                <i data-lucide="bar-chart-3" class="w-8 h-8 text-accent mr-4 mt-1 flex-shrink-0"></i>
+                                <div>
+                                    <h3 class="text-xl font-bold mb-2">Transparență Totală</h3>
+                                    <p class="text-gray-400">Campaniile de promovare (Facebook Ads, Google Ads) vor fi pe contul tău de afaceri, oferindu-ți control total și transparență asupra bugetului și performanței.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Imagine & CTA -->
+                    <div class="p-8 lg:p-10">
+                         <!-- Imagine din Your-Ads-Agency-uk-–-Promoveaza-te-cu-Noi-10-22-2025_04_09_PM.jpg -->
+                        <img src="https://placehold.co/600x400/059669/fff?text=Strategie+Digitala+Inteligenta" alt="Echipa de Strategi Digitali" class="rounded-xl shadow-2xl mb-8 object-cover w-full h-auto">
+                         <div class="card p-6 border-2 border-accent bg-black">
+                            <h4 class="text-xl font-bold text-white mb-2">Promovează-te cu Noi!</h4>
+                            <p class="text-gray-400 mb-4">Ești gata să îți transformi afacerea și să ai un sistem de vânzări automatizat 24/7?</p>
+                             <a href="#contact-form" class="btn-primary mt-2 inline-flex items-center w-full justify-center">
+                                Vreau o Discuție Gratuită
+                                <i data-lucide="chevron-right" class="w-4 h-4 ml-2"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+         <!-- Separator Modern -->
+        <div class="w-full bg-[#1a1a1a]">
+            <svg viewBox="0 0 100 20" preserveAspectRatio="none" class="w-full h-10" fill="#000000">
+                <polygon points="0,0 100,20 0,20" />
+            </svg>
+        </div>
+
+        <!-- 3. Testimoniale/Review-uri (NOU) -->
+        <section id="testimoniale" class="py-20 md:py-32 section-bg">
+            <div class="max-w-7xl mx-auto px-6 lg:px-8">
+                <h2 class="text-4xl md:text-5xl font-extrabold mb-4 text-center">
+                    Clienții Noștri <span class="text-accent">Vorbesc</span>
+                </h2>
+                <p class="text-gray-400 text-xl mb-12 max-w-3xl mx-auto text-center">
+                    Succesul lor este garanția muncii noastre. Iată ce spun antreprenorii cu care am colaborat.
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="testimonial-card">
+                         <i data-lucide="quote"></i>
+                        <p class="text-white italic mb-4 relative z-10">"Am încercat multe agenții, dar Your Ads Agency a fost singura care a reușit să scaleze campaniile noastre de Google Ads cu un ROAS constant de peste 400%. Recomand cu încredere!"</p>
+                        <p class="text-accent font-semibold text-lg">- Andrei Ionescu, CEO E-commerce</p>
+                        <p class="text-gray-500 text-sm">Octombrie 2025</p>
+                    </div>
+                    <div class="testimonial-card">
+                         <i data-lucide="quote"></i>
+                        <p class="text-white italic mb-4 relative z-10">"Campaniile de Email Marketing implementate de ei ne-au transformat baza de date inactivă într-o sursă constantă de venit. Comunicare excelentă și profesionalism."</p>
+                        <p class="text-accent font-semibold text-lg">- Maria Popa, Fondator Brand de Haine</p>
+                        <p class="text-gray-500 text-sm">Septembrie 2025</p>
+                    </div>
+                    <div class="testimonial-card">
+                         <i data-lucide="quote"></i>
+                        <p class="text-white italic mb-4 relative z-10">"Am trecut de la zero vânzări pe TikTok la peste 100 de comenzi pe săptămână în doar două luni. Au înțeles perfect platforma și au creat conținut care a prins la publicul tânăr."</p>
+                        <p class="text-accent font-semibold text-lg">- Alex Stoica, Manager de Marketing</p>
+                        <p class="text-gray-500 text-sm">August 2025</p>
+                    </div>
+                </div>
+                 <div class="text-center mt-12">
+                     <a href="#contact-form" class="btn-primary inline-flex items-center">
+                        Devino și tu un Client de Succes
+                        <i data-lucide="arrow-right" class="w-4 h-4 ml-2"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. Serviciile Noastre - Prezentare Generală cu HOVER îmbunătățit -->
+        <section id="servicii" class="py-20 md:py-32 section-bg bg-[#1a1a1a]">
+            <div class="max-w-7xl mx-auto px-6 lg:px-8 text-center">
+                <h2 class="text-4xl md:text-5xl font-extrabold mb-4">
+                    Serviciile Noastre - Alege <span class="text-accent">soluția potrivită</span>
+                </h2>
+                <p class="text-gray-400 text-xl mb-12 max-w-3xl mx-auto">
+                    Alege serviciul potrivit pentru creșterea afacerii tale.
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Card Serviciu: Facebook Ads -->
+                    <a href="#detaliu-facebook" class="card service-card text-left flex flex-col justify-between transition duration-300">
+                        <div>
+                            <i data-lucide="facebook" class="w-8 h-8 text-accent mb-4"></i>
+                            <h3 class="text-2xl font-bold mb-3">Facebook Ads</h3>
+                            <p class="text-gray-400 mb-4">Campanii creative care atrag atenția și transformă audiența în clienți. Optimizăm pentru conversii și scalăm cu precizie.</p>
+                        </div>
+                        <span class="text-accent hover:text-white transition duration-200 font-semibold mt-4 flex items-center">Vezi Detalii <i data-lucide="arrow-right" class="w-4 h-4 ml-2"></i></span>
+                    </a>
+                    <!-- Card Serviciu: Google Ads -->
+                    <a href="#detaliu-google" class="card service-card text-left flex flex-col justify-between transition duration-300">
+                        <div>
+                            <i data-lucide="search" class="w-8 h-8 text-accent mb-4"></i>
+                            <h3 class="text-2xl font-bold mb-3">Google Ads</h3>
+                            <p class="text-gray-400 mb-4">Ajungi sus în Google exact când te caută clienții. Trafic de calitate și Performance Max orientate pe ROAS.</p>
+                        </div>
+                        <span class="text-accent hover:text-white transition duration-200 font-semibold mt-4 flex items-center">Vezi Detalii <i data-lucide="arrow-right" class="w-4 h-4 ml-2"></i></span>
+                    </a>
+                    <!-- Card Serviciu: YouTube Ads -->
+                    <a href="#detaliu-youtube" class="card service-card text-left flex flex-col justify-between transition duration-300">
+                        <div>
+                            <i data-lucide="youtube" class="w-8 h-8 text-accent mb-4"></i>
+                            <h3 class="text-2xl font-bold mb-3">YouTube Ads</h3>
+                            <p class="text-gray-400 mb-4">Video ads memorabile, targetare avansată și maximizarea brand awareness-ului și conversiile.</p>
+                        </div>
+                        <span class="text-accent hover:text-white transition duration-200 font-semibold mt-4 flex items-center">Vezi Detalii <i data-lucide="arrow-right" class="w-4 h-4 ml-2"></i></span>
+                    </a>
+                    <!-- Card Serviciu: TikTok Ads -->
+                    <a href="#detaliu-tiktok" class="card service-card text-left flex flex-col justify-between transition duration-300">
+                        <div>
+                            <i data-lucide="smartphone" class="w-8 h-8 text-accent mb-4"></i>
+                            <h3 class="text-2xl font-bold mb-3">TikTok Ads</h3>
+                            <p class="text-gray-400 mb-4">Conținut video dinamic, cu impact rapid. Testăm, optimizăm, scalăm.</p>
+                        </div>
+                        <span class="text-accent hover:text-white transition duration-200 font-semibold mt-4 flex items-center">Vezi Detalii <i data-lucide="arrow-right" class="w-4 h-4 ml-2"></i></span>
+                    </a>
+                    <!-- Card Serviciu: SEO -->
+                    <a href="#detaliu-seo" class="card service-card text-left flex flex-col justify-between transition duration-300">
+                        <div>
+                            <i data-lucide="trending-up" class="w-8 h-8 text-accent mb-4"></i>
+                            <h3 class="text-2xl font-bold mb-3">SEO - Optimizare Organică</h3>
+                            <p class="text-gray-400 mb-4">Trafic organic, conținut, audit, on-page, construit link building. Reușim să te ducem pe prima pagină Google.</p>
+                        </div>
+                        <span class="text-accent hover:text-white transition duration-200 font-semibold mt-4 flex items-center">Vezi Detalii <i data-lucide="arrow-right" class="w-4 h-4 ml-2"></i></span>
+                    </a>
+                    <!-- Card Serviciu: Email Marketing -->
+                    <a href="#detaliu-email" class="card service-card text-left flex flex-col justify-between transition duration-300">
+                        <div>
+                            <i data-lucide="mail" class="w-8 h-8 text-accent mb-4"></i>
+                            <h3 class="text-2xl font-bold mb-3">Email Marketing</h3>
+                            <p class="text-gray-400 mb-4">Automatizări, segmente, și conținut care vinde. ROI ridicat și retenție crescută.</p>
+                        </div>
+                        <span class="text-accent hover:text-white transition duration-200 font-semibold mt-4 flex items-center">Vezi Detalii <i data-lucide="arrow-right" class="w-4 h-4 ml-2"></i></span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+         <!-- Separator Modern -->
+        <div class="w-full bg-[#1a1a1a]">
+            <svg viewBox="0 0 100 20" preserveAspectRatio="none" class="w-full h-10" fill="#000000">
+                <polygon points="0,0 100,0 0,20" />
+            </svg>
+        </div>
+
+        <!-- 5. BLOG / Informații Generale -->
+        <section id="blog" class="py-20 md:py-32 section-bg bg-black">
+             <div class="max-w-7xl mx-auto px-6 lg:px-8">
+                 <h2 class="text-4xl md:text-5xl font-extrabold mb-12 text-center">
+                    Ghidul Tău pentru Campanii Digitale <span class="text-accent">Eficiente</span>
+                </h2>
+                <div class="card p-8 lg:p-12 bg-[#1a1a1a]">
+                    <!-- Imagine de la începutul BLOG.jpg -->
+                    <img src="https://placehold.co/1200x500/10B981/000?text=Marketing+Digital+Complet" alt="Prezentare Marketing Digital" class="rounded-xl shadow-2xl mb-8 object-cover w-full h-auto">
+
+                    <h3 class="text-3xl font-bold mb-4 text-accent">Publicitate Plătită (Ads): Rezultate Rapide și Targetate</h3>
+                    <p class="text-gray-300 text-lg mb-8">
+                        Vrei ca brandul tău să devină vizibil rapid? Publicitatea plătită (PPC) este soluția ideală. Indiferent de nișa în care te afli, putem construi, implementa și optimiza campanii care îți aduc rapid clienți.
+                    </p>
+
+                    <div class="space-y-8">
+                        <div>
+                            <h4 class="text-2xl font-bold mb-2">1. Campanii Google Ads (Search & Display)</h4>
+                            <p class="text-gray-400">Ajungi la clienți când aceștia caută produsele sau serviciile tale. Optimizăm campaniile de căutare și le completăm cu vizibilitate pe rețeaua Display, maximizând ROAS-ul.</p>
+                        </div>
+                        <div>
+                            <h4 class="text-2xl font-bold mb-2">2. Facebook și Instagram Ads</h4>
+                            <p class="text-gray-400">Ne adresăm audienței potrivite, creăm reclame vizuale atractive și lansăm campanii de retargeting pentru a transforma vizitatorii în cumpărători loiali.</p>
+                        </div>
+                        <div>
+                            <h4 class="text-2xl font-bold mb-2">3. YouTube Ads: Vizibilitate Video</h4>
+                            <p class="text-gray-400">Video este conținutul cu cel mai mare engagement. Campaniile YouTube Ads, puse în scenă de noi, te ajută să îți crești rapid brand awareness-ul și să obții conversii la costuri reduse.</p>
+                        </div>
+                        <div>
+                            <h4 class="text-2xl font-bold mb-2">4. TikTok Ads: Viralitate și Acces la Noua Generație</h4>
+                            <p class="text-gray-400">Aici poți obține rezultate explozive! TikTok Ads oferă oportunități unice de a te promova la o audiență vastă și de a deveni viral. Noi creăm conținutul video, implementăm și optimizăm campaniile TikTok.</p>
+                        </div>
+                    </div>
+
+                    <h3 class="text-3xl font-bold mb-4 text-accent mt-12">Strategia de Lungă Durată: Servicii SEO Profesioniste</h3>
+                    <p class="text-gray-300 text-lg mb-8">
+                        SEO (Search Engine Optimization) este investiția pe termen lung care îți aduce trafic organic constant și clienți fără costuri pe click. Noi ne ocupăm de audit tehnic, research de cuvinte cheie, optimizare On-Page, articole de blog și backlinking.
+                    </p>
+
+                    <h3 class="text-3xl font-bold mb-4 text-accent mt-12">Conversii și Fidelizare: Email Marketing Avansat</h3>
+                    <p class="text-gray-300 text-lg mb-8">
+                        Email Marketing-ul este agentul tău de vânzări automatizat. Creăm secvențe de emailuri (funnel-uri) care transformă lead-urile reci în clienți și îi fidelizează pe cei existenți.
+                    </p>
+                     <a href="#contact-form" class="btn-primary mt-6 inline-flex items-center">
+                        Programează o Discuție Gratuită
+                        <i data-lucide="zap" class="w-4 h-4 ml-2"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Separator Modern -->
+        <div class="w-full bg-black">
+            <svg viewBox="0 0 100 20" preserveAspectRatio="none" class="w-full h-10" fill="#1a1a1a">
+                <polygon points="0,0 100,20 0,20" />
+            </svg>
+        </div>
+
+
+        <!-- 6. Detaliu Google Ads -->
+        <section id="detaliu-google" class="py-20 md:py-32 bg-[#1a1a1a]">
+            <div class="max-w-7xl mx-auto px-6 lg:px-8">
+                <div class="card p-8 lg:p-12 border-l-4 border-accent bg-gray-900">
+                    <h2 class="text-4xl md:text-5xl font-extrabold mb-4">
+                        Atrage clienți rapid prin <span class="text-accent">Campanii Google Ads</span> Eficiente
+                    </h2>
+                    <p class="text-2xl font-semibold text-gray-300 mb-8">
+                        începând de la 500 €/lună
+                    </p>
+
+                    <h3 class="text-3xl font-bold mb-4 text-accent">Cum lucrăm pentru tine?</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                        <div class="flex items-start">
+                            <i data-lucide="clipboard-list" class="w-6 h-6 text-accent mr-3 mt-1 flex-shrink-0"></i>
+                            <div>
+                                <h4 class="text-xl font-bold mb-1">1. Audit & Strategie</h4>
+                                <p class="text-gray-400">Analizăm piața, competiția și stabilim cuvintele cheie care generează conversii.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <i data-lucide="pen-tool" class="w-6 h-6 text-accent mr-3 mt-1 flex-shrink-0"></i>
+                            <div>
+                                <h4 class="text-xl font-bold mb-1">2. Creare Reclame</h4>
+                                <p class="text-gray-400">Redactăm texte creative și convingătoare, adaptate fiecărui tip de campanie (Search, Display, Video).</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <i data-lucide="zap" class="w-6 h-6 text-accent mr-3 mt-1 flex-shrink-0"></i>
+                            <div>
+                                <h4 class="text-xl font-bold mb-1">3. Lansare & Optimizare</h4>
+                                <p class="text-gray-400">Lansăm campaniile, monitorizăm performanța în timp real și optimizăm pentru un ROAS maxim.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <i data-lucide="layout-dashboard" class="w-6 h-6 text-accent mr-3 mt-1 flex-shrink-0"></i>
+                            <div>
+                                <h4 class="text-xl font-bold mb-1">4. Raportare lunară</h4>
+                                <p class="text-gray-400">Îți oferim rapoarte clare și complete pentru a înțelege exact evoluția investiției tale.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="#contact-form" class="btn-primary inline-flex items-center">
+                        Vreau Campanii Google Ads
+                        <i data-lucide="arrow-right" class="w-4 h-4 ml-2"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- 7. Detaliu Facebook Ads -->
+        <section id="detaliu-facebook" class="py-20 md:py-32">
+            <div class="max-w-7xl mx-auto px-6 lg:px-8">
+                <div class="card p-8 lg:p-12 border-l-4 border-accent bg-[#1a1a1a]">
+                    <h2 class="text-4xl md:text-5xl font-extrabold mb-4">
+                        Atrage clienți rapid prin <span class="text-accent">Campanii Facebook Ads</span> Eficiente
+                    </h2>
+                    <p class="text-2xl font-semibold text-gray-300 mb-8">
+                        începând de la 500 €/lună
+                    </p>
+
+                    <h3 class="text-3xl font-bold mb-4 text-accent">Avantajele Facebook Ads cu Your Ads Agency:</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                        <div class="flex items-start">
+                            <i data-lucide="target" class="w-6 h-6 text-accent mr-3 mt-1 flex-shrink-0"></i>
+                            <div>
+                                <h4 class="text-xl font-bold mb-1">Targetare Avansată</h4>
+                                <p class="text-gray-400">Segmentăm audiența pe interese, demografice și comportament pentru a reduce costul per achiziție.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <i data-lucide="pen-tool" class="w-6 h-6 text-accent mr-3 mt-1 flex-shrink-0"></i>
+                            <div>
+                                <h4 class="text-xl font-bold mb-1">Design Creativ</h4>
+                                <p class="text-gray-400">Creăm reclame vizuale și video care atrag atenția și generează click-uri.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <i data-lucide="layers" class="w-6 h-6 text-accent mr-3 mt-1 flex-shrink-0"></i>
+                            <div>
+                                <h4 class="text-xl font-bold mb-1">Strategie Funnel</h4>
+                                <p class="text-gray-400">Construim campanii pe toate etapele: Awareness, Consideration și Conversion, maximizând rata de conversie.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <i data-lucide="repeat" class="w-6 h-6 text-accent mr-3 mt-1 flex-shrink-0"></i>
+                            <div>
+                                <h4 class="text-xl font-bold mb-1">Retargeting</h4>
+                                <p class="text-gray-400">Revenim în fața vizitatorilor care nu au cumpărat pentru a finaliza vânzarea la un cost minim.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="#contact-form" class="btn-primary inline-flex items-center">
+                        Vreau Campanii Facebook Ads
+                        <i data-lucide="arrow-right" class="w-4 h-4 ml-2"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Separator Modern -->
+        <div class="w-full bg-black">
+            <svg viewBox="0 0 100 20" preserveAspectRatio="none" class="w-full h-10" fill="#1a1a1a">
+                <polygon points="0,0 100,20 0,20" />
+            </svg>
+        </div>
+
+
+        <!-- 8. Detaliu TikTok Ads -->
+        <section id="detaliu-tiktok" class="py-20 md:py-32 bg-[#1a1a1a]">
+            <div class="max-w-7xl mx-auto px-6 lg:px-8">
+                <div class="card p-8 lg:p-12 border-l-4 border-accent bg-gray-900">
+                    <h2 class="text-4xl md:text-5xl font-extrabold mb-4">
+                        TikTok Ads: <span class="text-accent">Viralitate și Conversii</span> pentru noua generație
+                    </h2>
+                    <p class="text-2xl font-semibold text-gray-300 mb-8">
+                        Platforma cu cea mai rapidă creștere!
+                    </p>
+
+                    <h3 class="text-3xl font-bold mb-4 text-accent">Ce îți oferim pentru TikTok:</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                        <div class="flex items-start">
+                            <i data-lucide="video" class="w-6 h-6 text-accent mr-3 mt-1 flex-shrink-0"></i>
+                            <div>
+                                <h4 class="text-xl font-bold mb-1">Content Creativ & UGC</h4>
+                                <p class="text-gray-400">Producem conținut video scurt, autentic și User Generated Content (UGC) care se integrează natural în feed-ul TikTok.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <i data-lucide="gauge" class="w-6 h-6 text-accent mr-3 mt-1 flex-shrink-0"></i>
+                            <div>
+                                <h4 class="text-xl font-bold mb-1">Scalare Rapidă</h4>
+                                <p class="text-gray-400">TikTok este ideal pentru campanii de awareness și conversii rapide. Testăm, optimizăm și scalăm rapid campaniile care aduc rezultate.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <i data-lucide="users" class="w-6 h-6 text-accent mr-3 mt-1 flex-shrink-0"></i>
+                            <div>
+                                <h4 class="text-xl font-bold mb-1">Acces la Gen Z</h4>
+                                <p class="text-gray-400">Dacă publicul tău țintă este tânăr, TikTok este canalul obligatoriu pentru vizibilitate și engagement.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <i data-lucide="trending-up" class="w-6 h-6 text-accent mr-3 mt-1 flex-shrink-0"></i>
+                            <div>
+                                <h4 class="text-xl font-bold mb-1">Costuri Competitive</h4>
+                                <p class="text-gray-400">Costul per acțiune (CPA) poate fi mai mic decât pe alte platforme, dacă strategia este corectă.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="#contact-form" class="btn-primary inline-flex items-center">
+                        Vreau Campanii TikTok Ads
+                        <i data-lucide="arrow-right" class="w-4 h-4 ml-2"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- 9. Detaliu YouTube Ads -->
+        <section id="detaliu-youtube" class="py-20 md:py-32">
+            <div class="max-w-7xl mx-auto px-6 lg:px-8">
+                <div class="card p-8 lg:p-12 border-l-4 border-accent bg-[#1a1a1a]">
+                    <h2 class="text-4xl md:text-5xl font-extrabold mb-4">
+                        YouTube Ads: <span class="text-accent">Impact Vizual</span> și Câștigarea Încrederii
+                    </h2>
+                    <p class="text-2xl font-semibold text-gray-300 mb-8">
+                        Campaniile video care vând.
+                    </p>
+
+                    <h3 class="text-3xl font-bold mb-4 text-accent">De ce să investești în YouTube Ads?</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                        <div class="flex items-start">
+                            <i data-lucide="eye" class="w-6 h-6 text-accent mr-3 mt-1 flex-shrink-0"></i>
+                            <div>
+                                <h4 class="text-xl font-bold mb-1">Vizibilitate Maximă</h4>
+                                <p class="text-gray-400">Ajungi la audiența ta exact înainte de conținutul pe care vor să-l urmărească.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <i data-lucide="layers" class="w-6 h-6 text-accent mr-3 mt-1 flex-shrink-0"></i>
+                            <div>
+                                <h4 class="text-xl font-bold mb-1">Targetare pe Conținut</h4>
+                                <p class="text-gray-400">Ne putem adresa utilizatorilor care urmăresc anumite canale sau clipuri video specifice din nișa ta.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <i data-lucide="trending-up" class="w-6 h-6 text-accent mr-3 mt-1 flex-shrink-0"></i>
+                            <div>
+                                <h4 class="text-xl font-bold mb-1">Brand Building</h4>
+                                <p class="text-gray-400">Video-ul îți consolidează rapid imaginea de brand și sporește încrederea în produs/serviciu.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <i data-lucide="zap" class="w-6 h-6 text-accent mr-3 mt-1 flex-shrink-0"></i>
+                            <div>
+                                <h4 class="text-xl font-bold mb-1">Costuri Reduse</h4>
+                                <p class="text-gray-400">Plătești doar dacă utilizatorul vizionează o anumită durată din reclamă (TrueView).</p>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="#contact-form" class="btn-primary inline-flex items-center">
+                        Vreau Campanii YouTube Ads
+                        <i data-lucide="arrow-right" class="w-4 h-4 ml-2"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Separator Modern -->
+        <div class="w-full bg-black">
+            <svg viewBox="0 0 100 20" preserveAspectRatio="none" class="w-full h-10" fill="#1a1a1a">
+                <polygon points="0,0 100,20 0,20" />
+            </svg>
+        </div>
+
+
+        <!-- 10. Detaliu Email Marketing -->
+        <section id="detaliu-email" class="py-20 md:py-32 bg-[#1a1a1a]">
+            <div class="max-w-7xl mx-auto px-6 lg:px-8">
+                <div class="card p-8 lg:p-12 border-l-4 border-accent bg-gray-900">
+                    <h2 class="text-4xl md:text-5xl font-extrabold mb-4">
+                        Email Marketing: <span class="text-accent">Conversii Automate</span> și Fidelizare
+                    </h2>
+                    <p class="text-2xl font-semibold text-gray-300 mb-8">
+                        ROI-ul cel mai mare din marketingul digital.
+                    </p>
+
+                    <h3 class="text-3xl font-bold mb-4 text-accent">Servicii de Email Marketing:</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                        <div class="flex items-start">
+                            <i data-lucide="bot" class="w-6 h-6 text-accent mr-3 mt-1 flex-shrink-0"></i>
+                            <div>
+                                <h4 class="text-xl font-bold mb-1">Automatizări de Vânzări</h4>
+                                <p class="text-gray-400">Secvențe automate de emailuri pentru vizitatorii care abandonează coșul, noii abonați sau clienții inactivi.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <i data-lucide="users" class="w-6 h-6 text-accent mr-3 mt-1 flex-shrink-0"></i>
+                            <div>
+                                <h4 class="text-xl font-bold mb-1">Segmentare Avansată</h4>
+                                <p class="text-gray-400">Trimitem mesajul potrivit, persoanei potrivite, la momentul potrivit, bazat pe comportamentul lor pe site.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <i data-lucide="mail-check" class="w-6 h-6 text-accent mr-3 mt-1 flex-shrink-0"></i>
+                            <div>
+                                <h4 class="text-xl font-bold mb-1">Campanii de Newsletter</h4>
+                                <p class="text-gray-400">Creăm design-uri profesionale și mesaje convingătoare pentru a ține clienții conectați cu brandul tău.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <i data-lucide="heart" class="w-6 h-6 text-accent mr-3 mt-1 flex-shrink-0"></i>
+                            <div>
+                                <h4 class="text-xl font-bold mb-1">Fidelizare & Lifetime Value</h4>
+                                <p class="text-gray-400">Maximizăm valoarea pe viață (LTV) a fiecărui client prin oferte personalizate și comunicare constantă.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="#contact-form" class="btn-primary inline-flex items-center">
+                        Vreau Strategie Email Marketing
+                        <i data-lucide="arrow-right" class="w-4 h-4 ml-2"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- 11. Detaliu SEO -->
+        <section id="detaliu-seo" class="py-20 md:py-32">
+            <div class="max-w-7xl mx-auto px-6 lg:px-8">
+                <div class="card p-8 lg:p-12 border-l-4 border-accent bg-[#1a1a1a]">
+                    <h2 class="text-4xl md:text-5xl font-extrabold mb-4">
+                        SEO: <span class="text-accent">Trafic Organic</span> Constant
+                    </h2>
+                    <p class="text-2xl font-semibold text-gray-300 mb-8">
+                        Investiția pe termen lung care îți aduce clienți gratuit.
+                    </p>
+
+                    <h3 class="text-3xl font-bold mb-4 text-accent">Componentele SEO:</h3>
+                    <ul class="text-gray-300 text-lg mb-8 space-y-3">
+                        <li class="flex items-start"><i data-lucide="activity" class="w-5 h-5 text-accent mr-3 mt-1 flex-shrink-0"></i> **Audit Tehnic:** Asigurăm viteza optimă a site-ului și structura corectă pentru Google.</li>
+                        <li class="flex items-start"><i data-lucide="search" class="w-5 h-5 text-accent mr-3 mt-1 flex-shrink-0"></i> **Optimizare On-Page:** Cercetare de cuvinte cheie și optimizare a conținutului existent și nou.</li>
+                        <li class="flex items-start"><i data-lucide="book-open" class="w-5 h-5 text-accent mr-3 mt-1 flex-shrink-0"></i> **Content Marketing:** Scriem articole de blog relevante care îți poziționează afacerea ca expert în domeniu.</li>
+                        <li class="flex items-start"><i data-lucide="link" class="w-5 h-5 text-accent mr-3 mt-1 flex-shrink-0"></i> **Off-Page SEO:** Construim un profil de backlink-uri puternic și de încredere.</li>
+                    </ul>
+                    <a href="#contact-form" class="btn-primary inline-flex items-center">
+                        Vreau Strategie SEO
+                        <i data-lucide="arrow-right" class="w-4 h-4 ml-2"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Separator Modern -->
+        <div class="w-full bg-black">
+            <svg viewBox="0 0 100 20" preserveAspectRatio="none" class="w-full h-10" fill="#1a1a1a">
+                <polygon points="0,0 100,20 0,20" />
+            </svg>
+        </div>
+
+
+        <!-- 12. Garanții & Încredere -->
+        <section id="garantii" class="py-20 md:py-32 section-bg bg-[#1a1a1a]">
+            <div class="max-w-4xl mx-auto px-6 lg:px-8 text-center">
+                <h2 class="text-4xl md:text-5xl font-extrabold mb-12">
+                    Garanții & <span class="text-accent">Încredere Totală</span>
+                </h2>
+                <div class="space-y-6 card p-8 border-t-4 border-accent bg-gray-900">
+                    <div class="flex items-center justify-center space-x-3">
+                        <i data-lucide="shield-check" class="w-6 h-6 text-accent flex-shrink-0"></i>
+                        <p class="text-xl text-gray-200 font-medium">Garantăm implementarea completă a serviciilor promise.</p>
+                    </div>
+                    <div class="flex items-center justify-center space-x-3">
+                        <i data-lucide="dollar-sign" class="w-6 h-6 text-accent flex-shrink-0"></i>
+                        <p class="text-xl text-gray-200 font-medium">
+                            Dacă în **14 zile** nu primești niciun raport sau semn clar de activitate, îți returnăm banii.
+                        </p>
+                    </div>
+                    <div class="flex items-center justify-center space-x-3">
+                        <i data-lucide="alert-triangle" class="w-6 h-6 text-yellow-500 flex-shrink-0"></i>
+                        <p class="text-sm text-gray-400 italic">
+                            Atenție: Dacă începe implementarea campaniilor sau a site-ului, sumele plătite pentru muncă prestată nu mai pot fi returnate.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+         <!-- Separator Modern -->
+        <div class="w-full bg-[#1a1a1a]">
+            <svg viewBox="0 0 100 20" preserveAspectRatio="none" class="w-full h-10" fill="#000000">
+                <polygon points="0,0 100,0 0,20" />
+            </svg>
+        </div>
+
+
+        <!-- 13. Cum Lucrăm? -->
+        <section id="cum-lucram" class="py-20 md:py-32 section-bg bg-black">
+            <div class="max-w-7xl mx-auto px-6 lg:px-8">
+                <h2 class="text-4xl md:text-5xl font-extrabold mb-12 text-center">
+                    Cum Lucrăm? <span class="text-accent">Procesul de Creștere</span> în 3 Etape
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-10 text-center">
+                    <div class="card p-6 border-t-4 border-accent">
+                        <span class="text-4xl font-extrabold text-accent block mb-4">1.</span>
+                        <h3 class="text-2xl font-bold mb-2">Programează un Apel</h3>
+                        <p class="text-gray-300">Discutăm despre afacerea ta, piață, competitori și obiectivele clare pe care le ai.</p>
+                    </div>
+                    <div class="card p-6 border-t-4 border-accent">
+                        <span class="text-4xl font-extrabold text-accent block mb-4">2.</span>
+                        <h3 class="text-2xl font-bold mb-2">Arhitectura Digitală</h3>
+                        <p class="text-gray-300">Creăm strategia digitală potrivită (site + funnel + promovare) adaptată nevoilor și bugetului tău.</p>
+                    </div>
+                    <div class="card p-6 border-t-4 border-accent">
+                        <span class="text-4xl font-extrabold text-accent block mb-4">3.</span>
+                        <h3 class="text-2xl font-bold mb-2">Execuție & Măsurare</h3>
+                        <p class="text-gray-300">Implementăm totul, iar tu urmărești rezultatele în timp real din contul tău. Optimizăm constant.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 14. Întrebări Frecvente (FAQ) -->
+        <section id="faq" class="py-20 md:py-32 section-bg bg-[#1a1a1a]">
+            <div class="max-w-4xl mx-auto px-6 lg:px-8">
+                <h2 class="text-4xl md:text-5xl font-extrabold mb-12 text-center">
+                    Întrebări frecvente. <span class="text-accent">Tot ce trebuie să știi.</span>
+                </h2>
+                <!-- Acordeon FAQ 1 -->
+                <div class="card mb-4 border-b border-gray-700 bg-gray-900">
+                    <button class="w-full text-left flex justify-between items-center py-4 focus:outline-none" onclick="toggleAccordion(this)">
+                        <span class="text-lg font-bold">1. Cât durează până văd rezultate din campaniile de marketing digital?</span>
+                        <i data-lucide="chevron-down" class="w-5 h-5 transition-transform duration-300"></i>
+                    </button>
+                    <div class="accordion-content hidden pb-4 text-gray-300 px-4">
+                        <p>Depinde de strategie. Campaniile plătite (Google Ads, Facebook Ads) pot aduce primele rezultate în câteva zile, în timp ce SEO necesită câteva luni pentru impact maxim și creștere organică durabilă.</p>
+                    </div>
+                </div>
+
+                <!-- Acordeon FAQ 2 -->
+                <div class="card mb-4 border-b border-gray-700 bg-gray-900">
+                    <button class="w-full text-left flex justify-between items-center py-4 focus:outline-none" onclick="toggleAccordion(this)">
+                        <span class="text-lg font-bold">2. Cum alegeți cea mai bună strategie de marketing pentru afacerea mea?</span>
+                        <i data-lucide="chevron-down" class="w-5 h-5 transition-transform duration-300"></i>
+                    </button>
+                    <div class="accordion-content hidden pb-4 text-gray-300 px-4">
+                        <p>Facem o analiză detaliată a industriei, competitorilor și obiectivelor tale, apoi creăm un plan personalizat, axat 100% pe conversii și creșterea sustenabilă a afacerii.</p>
+                    </div>
+                </div>
+
+                <!-- Acordeon FAQ 3 -->
+                <div class="card mb-4 border-b border-gray-700 bg-gray-900">
+                    <button class="w-full text-left flex justify-between items-center py-4 focus:outline-none" onclick="toggleAccordion(this)">
+                        <span class="text-lg font-bold">3. Care este bugetul minim recomandat pentru reclame plătite?</span>
+                        <i data-lucide="chevron-down" class="w-5 h-5 transition-transform duration-300"></i>
+                    </button>
+                    <div class="accordion-content hidden pb-4 text-gray-300 px-4">
+                        <p>De obicei, recomandăm un buget de cel puțin **500-1000€ lunar** pentru a obține date și rezultate relevante, dar adaptăm întotdeauna strategia la capacitatea și obiectivele tale financiare.</p>
+                    </div>
+                </div>
+
+                <!-- Acordeon FAQ 4 -->
+                <div class="card mb-4 border-b border-gray-700 bg-gray-900">
+                    <button class="w-full text-left flex justify-between items-center py-4 focus:outline-none" onclick="toggleAccordion(this)">
+                        <span class="text-lg font-bold">4. Puteți administra complet campaniile mele sau doar oferi consultanță?</span>
+                        <i data-lucide="chevron-down" class="w-5 h-5 transition-transform duration-300"></i>
+                    </button>
+                    <div class="accordion-content hidden pb-4 text-gray-300 px-4">
+                        <p>Oferim ambele opțiuni. Fie că ai nevoie de administrare completă (Hands-Off) sau de consultanță strategică pentru echipele tale interne, suntem flexibili și ne adaptăm nevoilor tale.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+         <!-- Separator Modern -->
+        <div class="w-full bg-[#1a1a1a]">
+            <svg viewBox="0 0 100 20" preserveAspectRatio="none" class="w-full h-10" fill="#000000">
+                <polygon points="0,0 100,0 0,20" />
+            </svg>
+        </div>
+
+
+        <!-- 15. Contact (Formular de Lead Generation cu Firestore) -->
+        <section id="contact-form" class="py-20 md:py-32 section-bg bg-black">
+            <div class="max-w-4xl mx-auto px-6 lg:px-8">
+                <h2 class="text-4xl md:text-5xl font-extrabold mb-4 text-center">
+                    Trimite-ne un mesaj. <span class="text-accent">Suntem aici să te ajutăm!</span>
+                </h2>
+                <p class="text-gray-400 text-xl mb-12 text-center">
+                    Ai întrebări despre serviciile noastre sau vrei să discutăm despre o strategie de marketing pentru afacerea ta? Completează formularul de mai jos și îți răspundem în cel mai scurt timp!
+                </p>
+
+                <div class="card p-8 lg:p-10 bg-[#1a1a1a] border-t-4 border-accent">
+                    <form onsubmit="submitLead(event)">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <div>
+                                <label for="name" class="block text-sm font-medium text-gray-400 mb-2">Numele tău</label>
+                                <input type="text" id="name" name="name" required class="w-full p-3 rounded-lg bg-gray-800 border border-gray-700 focus:ring-accent focus:border-accent text-white" placeholder="Numele Tău">
+                            </div>
+                            <div>
+                                <label for="surname" class="block text-sm font-medium text-gray-400 mb-2">Prenumele tău</label>
+                                <input type="text" id="surname" name="surname" class="w-full p-3 rounded-lg bg-gray-800 border border-gray-700 focus:ring-accent focus:border-accent text-white" placeholder="Prenumele Tău">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <div>
+                                <label for="email" class="block text-sm font-medium text-gray-400 mb-2">Adresa de Email</label>
+                                <input type="email" id="email" name="email" required class="w-full p-3 rounded-lg bg-gray-800 border border-gray-700 focus:ring-accent focus:border-accent text-white" placeholder="Adresa Ta de Email">
+                            </div>
+                            <div>
+                                <label for="phone" class="block text-sm font-medium text-gray-400 mb-2">Număr de Telefon</label>
+                                <input type="tel" id="phone" name="phone" class="w-full p-3 rounded-lg bg-gray-800 border border-gray-700 focus:ring-accent focus:border-accent text-white" placeholder="Numărul Tău de Telefon">
+                            </div>
+                        </div>
+
+                        <div class="mb-6">
+                            <label for="message" class="block text-sm font-medium text-gray-400 mb-2">Mesajul tău</label>
+                            <textarea id="message" name="message" rows="4" required class="w-full p-3 rounded-lg bg-gray-800 border border-gray-700 focus:ring-accent focus:border-accent text-white" placeholder="Mesajul Tău"></textarea>
+                        </div>
+
+                        <button type="submit" class="btn-primary w-full flex items-center justify-center">
+                            <i data-lucide="send" class="w-5 h-5 mr-2"></i>
+                            >> Trimite acum <<
+                        </button>
+                    </form>
+
+                    <!-- Mesaj de Status Firebase -->
+                    <p id="status-message" class="mt-4 text-center text-gray-400"></p>
+                </div>
+
+                <p class="text-xs text-center p-4 text-gray-500" id="contact-info">
+                    📩 Scrie-ne la: <a href="mailto:contact@youradsagency.uk" class="text-accent hover:underline">contact@youradsagency.uk</a> |
+                    📞 WhatsApp: <a href="https://wa.me/447405355328" class="text-accent hover:underline">+44 7405 355328</a> |
+                    📍 Adresa: 141 Stamshaw Road, Portsmouth PO2 8LN, UK
+                </p>
+                <div class="text-center mt-4">
+                    <a href="https://tidycal.com/contact-at-youradsagencycom/15-minute-meeting" target="_blank" class="text-accent hover:text-white transition duration-200 text-sm font-medium border-b border-accent pb-1">
+                        🖥️ Programează o discuție (15 minute)
+                    </a>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- Footer -->
+        <footer class="bg-gray-900 border-t border-gray-800 py-12">
+            <div class="max-w-7xl mx-auto px-6 lg:px-8 text-center">
+                <div class="flex-shrink-0 mb-4">
+                    <span class="text-2xl font-extrabold text-white">Your Ads <span class="text-accent">Agency</span></span>
+                </div>
+                <!-- Links din footer CONTACT.jpg -->
+                <div class="space-x-6 text-gray-400 mb-6 text-sm">
+                    <a href="#acasa" class="hover:text-accent transition duration-200">Acasă</a>
+                    <a href="#despre-noi" class="hover:text-accent transition duration-200">Despre Noi</a>
+                    <a href="#servicii" class="hover:text-accent transition duration-200">Servicii</a>
+                    <a href="#blog" class="hover:text-accent transition duration-200">Blog</a>
+                    <a href="#" class="hover:text-accent transition duration-200">Termeni și condiții</a>
+                    <a href="#" class="hover:text-accent transition duration-200">Politică de retur</a>
+                </div>
+                <p class="text-sm text-gray-500">
+                    &copy; 2025 Your Ads Agency. Toate drepturile rezervate.
+                </p>
+                 <p class="text-xs text-gray-600 mt-2">
+                    Ozon Family LTD CEO of Your Ads Agency.uk
+                </p>
+            </div>
+        </footer>
+
+    </main>
+    
+    <!-- CTA Plutitor (Sticky Button) - Vizibil pe Mobile/Desktop -->
+    <a href="#contact-form" id="sticky-cta" class="btn-primary p-3 md:p-4 rounded-full shadow-2xl transition duration-300 transform hover:scale-105">
+        <i data-lucide="message-square" class="w-6 h-6"></i>
+    </a>
+    
+</body>
+</html>
