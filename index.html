@@ -1,39 +1,351 @@
-export default function Home() {
-  return (
-    <main style={{padding:"64px 24px", maxWidth:1200, margin:"0 auto", color:"#fff"}}>
-      <h1 style={{fontSize:36, marginBottom:8}}>Your Ads Agency</h1>
-      <p style={{marginBottom:32}}>Transformăm digital marketingul într-un agent de vânzări 24/7 pentru business-ul tău.</p>
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Ads Agency UK – Promovează-te cu Noi</title>
+    <!-- Incarca Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Seteaza fontul Inter global si estetica de Dark Mode */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #000000; /* Fundal negru profund */
+            color: #f0f0f0; /* Text deschis */
+            scroll-behavior: smooth;
+        }
+        .text-neon-green {
+            color: #34d399; /* O nuanță de verde neon pentru accente */
+        }
+        .bg-dark-section {
+            background-color: #111827; /* Gri inchis pentru sectiuni */
+        }
+        
+        /* Efecte de Hover Extinse pentru Butoane */
+        .btn-primary {
+            background-color: #34d399;
+            color: #1f2937;
+            font-weight: bold;
+            padding: 12px 28px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(52, 211, 153, 0.4);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        .btn-primary:hover {
+            background-color: #10b981;
+            transform: translateY(-2px); /* Ridicare subtilă */
+            box-shadow: 0 6px 15px rgba(52, 211, 153, 0.6);
+        }
+        
+        /* Stil pentru carduri - Efect de hover extins */
+        .card-effect {
+            background-color: #1f2937;
+            transition: all 0.3s ease;
+            transform: translateY(0);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+        }
+        .card-effect:hover {
+            border-color: #34d399 !important; /* Culoare neon la hover */
+            transform: translateY(-5px); /* Ridicare */
+            box-shadow: 0 10px 25px rgba(52, 211, 153, 0.2); /* Umbră cu tentă neon */
+        }
+        
+        /* Stil pentru formularul de contact (negru) */
+        .form-input {
+            background-color: #1f2937;
+            border: 1px solid #374151;
+            color: #f0f0f0;
+            padding: 10px;
+            border-radius: 6px;
+            width: 100%;
+            transition: border-color 0.3s ease;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #34d399; /* Accent neon la focus */
+        }
 
-      <section style={{marginTop:48}}>
-        <h2 style={{fontSize:28, marginBottom:24}}>Serviciile noastre</h2>
-        <div style={{
-          display:"grid",
-          gridTemplateColumns:"repeat(auto-fit, minmax(240px, 1fr))",
-          gap:24
-        }}>
-          {[
-            {title:"Facebook Ads", desc:"Campanii creative → conversii. Testăm, optimizăm, scalăm.", link:"/servicii/facebook-ads"},
-            {title:"Google Ads", desc:"Search, Display, Performance Max. Focus pe ROAS.", link:"/servicii/google-ads"},
-            {title:"YouTube Ads", desc:"Reach + remarketing, rapoarte clare, creștem conversiile.", link:"/servicii/youtube-ads"},
-            {title:"TikTok Ads", desc:"Conținut nativ, dinamic, impact rapid.", link:"/servicii/tiktok-ads"},
-            {title:"SEO", desc:"Trafic organic: audit, on-page, conținut, link-building.", link:"/servicii/seo"},
-            {title:"Email Marketing", desc:"Automatizări + content care vinde. ROI ridicat.", link:"/servicii/email-marketing"},
-          ].map(card => (
-            <a key={card.title} href={card.link} style={{
-              background:"#0d0d0d",
-              border:"1px solid #222",
-              borderRadius:16,
-              padding:"24px",
-              textDecoration:"none",
-              color:"#fff",
-              transition:"all .3s ease"
-            }}>
-              <h3 style={{fontSize:20, marginBottom:8}}>{card.title}</h3>
-              <p style={{color:"#aaa"}}>{card.desc}</p>
-            </a>
-          ))}
+        /* Ajustare Titlu Principal H1 pentru o mai buna responsivitate */
+        .hero-title {
+            font-size: 2.5rem; /* 40px pe mobil */
+        }
+        @media (min-width: 640px) { /* sm breakpoint */
+            .hero-title {
+                font-size: 4rem; /* 64px pe desktop/tablet */
+            }
+        }
+        @media (min-width: 1024px) { /* lg breakpoint */
+            .hero-title {
+                font-size: 5rem; /* 80px pe ecrane mari */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Antet Navigatie -->
+    <header class="bg-black border-b border-gray-800 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            <a href="#" class="text-2xl font-bold text-neon-green">Your Ads Agency UK</a>
+            <nav class="hidden md:flex space-x-6 text-gray-300 font-medium">
+                <a href="#servicii" class="hover:text-neon-green transition duration-300">Servicii</a>
+                <a href="#despre" class="hover:text-neon-green transition duration-300">Despre Noi</a>
+                <a href="#contact" class="btn-primary py-2 px-4 shadow-none hover:shadow-lg">07405 353328</a>
+            </nav>
+            <!-- Buton Meniu Mobil -->
+            <button id="menu-button" class="md:hidden text-gray-300 focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            </button>
         </div>
-      </section>
-    </main>
-  );
-}
+        <!-- Meniu mobil (initial ascuns) -->
+        <div id="mobile-menu" class="hidden md:hidden bg-black border-t border-gray-800">
+            <a href="#servicii" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-800">Servicii</a>
+            <a href="#despre" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-800">Despre Noi</a>
+            <a href="tel:+447405353328" class="block px-4 py-2 text-sm text-neon-green hover:bg-gray-800">07405 353328</a>
+        </div>
+    </header>
+
+    <!-- Sectiunea Principala (Hero) -->
+    <section class="min-h-[70vh] flex items-center justify-center p-8 bg-dark-section border-b border-gray-800">
+        <div class="max-w-6xl mx-auto text-center py-20">
+            <h1 class="hero-title font-extrabold tracking-tight mb-6 leading-tight">
+                Your Ads Agency UK: <span class="text-neon-green">Promovează-te cu Noi</span>
+            </h1>
+            <p class="text-xl sm:text-2xl text-gray-400 mb-10 max-w-3xl mx-auto">
+                Eficiență, Inovație și Rezultate Măsurabile în Publicitatea Online
+            </p>
+            <a href="#contact" class="btn-primary inline-block text-lg">
+                Vreau o Strategie Gratuită
+            </a>
+        </div>
+    </section>
+
+    <!-- Sectiunea Despre Noi Scurta (Cu Imagine Reala) -->
+    <section id="despre" class="py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <!-- Coloana Stanga: Text -->
+            <div class="md:pr-10">
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-gray-100 mb-6 border-l-4 border-neon-green pl-4">Despre Noi</h2>
+                <p class="text-lg text-gray-400 leading-relaxed mb-6">
+                    Misiunea noastră este să transformăm potențialul afacerii tale în rezultate concrete. Suntem o agenție de **Marketing Digital Full-Service**, dedicată creșterii vizibilității și vânzărilor tale în Marea Britanie.
+                </p>
+                <ul class="space-y-3 text-gray-400">
+                    <li class="flex items-start">
+                        <span class="text-neon-green text-xl mr-3 font-bold">✓</span>
+                        <span class="font-semibold text-gray-200">Experți în performance marketing:</span> Ne concentrăm pe ROI-ul campaniilor tale.
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-neon-green text-xl mr-3 font-bold">✓</span>
+                        <span class="font-semibold text-gray-200">Strategie transparentă:</span> Primești rapoarte detaliate 24/7 și știi exact unde merge bugetul tău.
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-neon-green text-xl mr-3 font-bold">✓</span>
+                        <span class="font-semibold text-gray-200">Inovație constantă:</span> Suntem mereu la curent cu cei mai noi algoritmi (Google, Meta, TikTok).
+                    </li>
+                </ul>
+                <a href="#contact" class="inline-block mt-10 btn-primary text-lg">
+                    Discută Proiectul Tău
+                </a>
+            </div>
+
+            <!-- Coloana Dreapta: Imagine Reala (Generata AI) -->
+            <div class="rounded-xl overflow-hidden shadow-2xl card-effect border border-gray-800">
+                <!-- Imagine care reprezinta o echipa de marketing ce lucreaza in mediul digital -->
+                <img src="https://images.unsplash.com/photo-1552581234-26160f608093?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
+                    alt="Echipa de publicitate digitala Your Ads Agency UK" 
+                    class="w-full h-auto object-cover opacity-90 transition duration-300 hover:opacity-100" 
+                    onerror="this.onerror=null;this.src='https://placehold.co/600x400/111827/34d399?text=Echipa+Digitala+Asteapta';"
+                >
+            </div>
+        </div>
+    </section>
+
+    <!-- Sectiunea Servicii Detaliate (Fara modificari la carduri, doar extindere hover la cele de jos) -->
+    <section id="servicii" class="py-20 bg-dark-section border-t border-b border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-4xl font-extrabold text-gray-50 mb-4">Serviciile Noastre Cheie</h2>
+            <p class="text-xl text-gray-400 mb-16">Alege serviciul potrivit pentru creșterea afacerii tale.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-10">
+
+                <!-- Card Facebook Ads -->
+                <div class="card-effect p-8 rounded-xl border border-gray-800 hover:border-neon-green">
+                    <div class="text-3xl text-neon-green mb-4 inline-block p-3 rounded-full bg-gray-900">
+                        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M14 10.5h2v3h-2v7h-3v-7h-2v-3h2v-2c0-2.3 1.1-3.5 3.5-3.5h2.5v3h-2.5c-.5 0-.5.2-.5.5v1.5h3l-.5 3h-2.5v7h-3v-7h-2v-3h2v-2z"/></svg>
+                    </div>
+                    <h3 class="text-2xl font-semibold mb-3 text-gray-100">Facebook Ads</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">Campanii creative care atrag atenția și transformă vizitatorii în clienți. Optimizăm pentru conversie și livrăm cu precizie.</p>
+                </div>
+
+                <!-- Card Google Ads -->
+                <div class="card-effect p-8 rounded-xl border border-gray-800 hover:border-neon-green">
+                    <div class="text-3xl text-neon-green mb-4 inline-block p-3 rounded-full bg-gray-900">
+                        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12.016 11.968c-2.344 0-4.04-1.782-4.04-4.04s1.696-4.04 4.04-4.04c1.192 0 2.228.468 2.928 1.182l-.004-.002-2.146 2.144c-.456-.412-1.122-.72-1.898-.72-1.464 0-2.584 1.12-2.584 2.586s1.12 2.586 2.584 2.586c1.722 0 2.388-1.296 2.454-1.996h-2.454v-3h4.686c.036.216.072.432.072.69 0 2.87-1.92 4.966-4.758 4.966zm-1.042 7.746c-.724.036-1.472.072-2.22.072-2.58 0-4.88-1.04-6.44-2.738l1.458-1.458c1.334 1.258 3.194 2.056 4.982 2.056.764 0 1.502-.13 2.176-.388l.044.002.002.002v2.454h-.002zM12 24c6.627 0 12-5.373 12-12s-5.373-12-12-12-12 5.373-12 12 5.373 12 12 12z"/></svg>
+                    </div>
+                    <h3 class="text-2xl font-semibold mb-3 text-gray-100">Google Ads</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">Atrage clienți în Google exact când te caută. Optimizăm campaniile PPC pentru Max Performance, Măsurare și Conversie.</p>
+                </div>
+
+                <!-- Card YouTube Ads -->
+                <div class="card-effect p-8 rounded-xl border border-gray-800 hover:border-neon-green">
+                    <div class="text-3xl text-neon-green mb-4 inline-block p-3 rounded-full bg-gray-900">
+                        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19.615 3.184c-1.348-.372-2.834-.61-4.36-.61-1.526 0-3.012.238-4.36.61C7.882 3.556 6.396 3.794 5.048 4.166 3.69 4.54 2.5 5.512 2.5 7v10c0 1.488 1.19 2.46 2.548 2.834 1.348.372 2.834.61 4.36.61 1.526 0 3.012-.238 4.36-.61 1.348-.372 2.834-.61 4.36-.61s3.012.238 4.36.61c1.358.372 2.548-1.122 2.548-2.834V7c0-1.776-1.19-3.264-2.548-3.816zM10 16.5v-9l7 4.5-7 4.5z"/></svg>
+                    </div>
+                    <h3 class="text-2xl font-semibold mb-3 text-gray-100">YouTube Ads</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">Video ads memorabile, targetare avansată și rezultate rapide. Creștem awareness-ul și conversiile.</p>
+                </div>
+            </div>
+
+            <!-- Randul 2 Servicii -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-10 mt-10">
+                <!-- Card TikTok Ads -->
+                <div class="card-effect p-8 rounded-xl border border-gray-800 hover:border-neon-green">
+                    <div class="text-3xl text-neon-green mb-4 inline-block p-3 rounded-full bg-gray-900">
+                        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12c.319 0 .638-.032.955-.094C12.302 23.35 12 22.195 12 21c0-3.327 2.673-6 6-6 1.195 0 2.35.302 3.332.895C23.968 12.638 24 12.319 24 12c0-6.627-5.373-12-12-12zm-2 16h-2v-4h2v4zm4-12h-2v10h2V4z"/></svg>
+                    </div>
+                    <h3 class="text-2xl font-semibold mb-3 text-gray-100">TikTok Ads</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">Conținut viral, campanii cu impact rapid. Testăm, optimizăm, scalăm. Accesăm audiența tânără.</p>
+                </div>
+                
+                <!-- Card SEO -->
+                <div class="card-effect p-8 rounded-xl border border-gray-800 hover:border-neon-green">
+                    <div class="text-3xl text-neon-green mb-4 inline-block p-3 rounded-full bg-gray-900">
+                        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0017 10.5a6.5 6.5 0 10-6.5 6.5A6.471 6.471 0 0014 15.51v.79l4.58 4.58c.39.39 1.02.39 1.41 0 .39-.39.39-1.02 0-1.41L15.5 14zm-5 0C8.01 14 6 11.99 6 9.5S8.01 5 10.5 5 15 7.01 15 9.5 12.99 14 10.5 14z"/></svg>
+                    </div>
+                    <h3 class="text-2xl font-semibold mb-3 text-gray-100">SEO (Trafic Organic)</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">Trafic organic neîntrerupt, audit on-page, conținut, link building. Începând cu bazele Google.</p>
+                </div>
+
+                <!-- Card Email Marketing -->
+                <div class="card-effect p-8 rounded-xl border border-gray-800 hover:border-neon-green">
+                    <div class="text-3xl text-neon-green mb-4 inline-block p-3 rounded-full bg-gray-900">
+                        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6zm-2 0l-8 5-8-5h16zm0 12H4V8l8 5 8-5v10z"/></svg>
+                    </div>
+                    <h3 class="text-2xl font-semibold mb-3 text-gray-100">Email Marketing</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">Automatizări, segmentare și conținut care vinde. ROI ridicat și retenție crescută.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sectiunea Beneficii (Cu efect de hover nou) -->
+    <section class="py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+             <h2 class="text-4xl font-extrabold text-center text-gray-50 mb-16">De Ce Lucrăm Diferit?</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                <!-- Beneficiu 1 -->
+                <div class="card-effect p-6 bg-gray-900 rounded-xl border-l-4 border-neon-green shadow-xl">
+                    <h3 class="text-xl font-bold mb-2 text-neon-green">Garanții și Încredere</h3>
+                    <p class="text-gray-400">Oferim garanții de performanță. Relația noastră se bazează pe încredere deplină, date clare și comunicare directă.</p>
+                </div>
+                <!-- Beneficiu 2 -->
+                <div class="card-effect p-6 bg-gray-900 rounded-xl border-l-4 border-neon-green shadow-xl">
+                    <h3 class="text-xl font-bold mb-2 text-neon-green">Transparență Totală</h3>
+                    <p class="text-gray-400">Acces 24/7 la dashboard-urile de campanie. Știi în timp real cum sunt cheltuiți banii și care este impactul.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Sectiunea Contact & Formular (Cu Imagine Reala si Efecte Imbunatatite) -->
+    <section id="contact" class="py-20 bg-dark-section border-t border-gray-800">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            
+            <!-- Coloana Stanga: Imagine & CTA -->
+            <div>
+                <!-- Imagine care reprezinta o consultanta sau o intalnire de business -->
+                <img src="https://images.unsplash.com/photo-1542838138-032906ed289d?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
+                    alt="Consultanta de marketing Your Ads Agency UK" 
+                    class="rounded-xl shadow-2xl w-full object-cover mb-6 opacity-90 transition duration-300 hover:opacity-100 card-effect border border-gray-800"
+                    onerror="this.onerror=null;this.src='https://placehold.co/600x400/111827/34d399?text=Consultanta+Strategica';"
+                >
+                <h2 class="text-3xl font-bold text-gray-50 mb-4 border-l-4 border-neon-green pl-4">Trimite-ne un mesaj, Suntem aici să te ajutăm!</h2>
+                <p class="text-lg text-gray-400">
+                    Ai întrebări despre serviciile noastre sau vrei să discutăm despre o strategie de marketing? Completează formularul și îți răspundem în cel mai scurt timp!
+                </p>
+                <p class="mt-4 text-xl font-semibold text-neon-green">
+                    Urgente? Sună acum: <a href="tel:+447405353328" class="hover:underline">07405 353328</a>
+                </p>
+            </div>
+
+            <!-- Coloana Dreapta: Formular -->
+            <div class="card-effect p-8 rounded-xl shadow-2xl border border-gray-700">
+                <form id="contactForm" onsubmit="handleFormSubmit(event)">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <input type="text" id="nume" placeholder="Numele Tău" class="form-input" required>
+                        <input type="text" id="prenume" placeholder="Prenumele Tău" class="form-input" required>
+                    </div>
+                    <div class="mb-4">
+                        <input type="email" id="email" placeholder="Adresa Ta de Email" class="form-input" required>
+                    </div>
+                    <div class="mb-6">
+                        <textarea id="mesaj" placeholder="Mesajul Tău" rows="5" class="form-input" required></textarea>
+                    </div>
+                    <button type="submit" class="btn-primary w-full text-lg flex items-center justify-center">
+                        <span class="mr-2">&raquo;</span> Trimite acum <span class="ml-2">&laquo;</span>
+                    </button>
+                    <p id="formMessage" class="mt-4 text-center text-neon-green font-semibold hidden">Mesajul tău a fost trimis! Îți vom răspunde în curând.</p>
+                </form>
+                <div id="formError" class="mt-4 text-center text-red-500 font-semibold hidden">
+                    <p>Eroare la trimitere. Te rog să ne contactezi direct la office@youradsagency.ro.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-black border-t border-gray-800 py-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm text-gray-500">
+            <div class="flex flex-wrap justify-center space-x-6 mb-4">
+                <a href="#despre" class="hover:text-neon-green transition duration-300">Despre Noi</a>
+                <a href="#servicii" class="hover:text-neon-green transition duration-300">Servicii</a>
+                <a href="#" class="hover:text-neon-green transition duration-300">Termeni de Utilizare</a>
+                <a href="#" class="hover:text-neon-green transition duration-300">Politica Cookies</a>
+            </div>
+            <p class="mb-2">Ozon Family LTD CEO of Your Ads Agency UK</p>
+            <p>&copy; 2025 Toate drepturile rezervate.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Logica simpla pentru meniul mobil
+        document.getElementById('menu-button').addEventListener('click', function() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Ascunde meniul mobil dupa click pe link
+        document.querySelectorAll('#mobile-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                document.getElementById('mobile-menu').classList.add('hidden');
+            });
+        });
+
+        // Logica formularului de contact (Simulare de succes)
+        function handleFormSubmit(event) {
+            event.preventDefault(); 
+
+            const form = document.getElementById('contactForm');
+            const message = document.getElementById('formMessage');
+            const error = document.getElementById('formError');
+            
+            form.style.opacity = 0.5;
+            setTimeout(() => {
+                form.style.opacity = 1;
+                form.reset(); 
+                message.classList.remove('hidden'); 
+                error.classList.add('hidden');
+                
+                // Ascunde mesajul dupa 5 secunde
+                setTimeout(() => {
+                    message.classList.add('hidden');
+                }, 5000);
+            }, 1000); 
+        }
+    </script>
+</body>
+</html>
